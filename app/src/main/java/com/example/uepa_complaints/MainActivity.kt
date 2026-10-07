@@ -5,7 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uepa_complaints.data.model.ComplaintRepository
+import com.example.uepa_complaints.data.model.DatabaseProvider
 import com.example.uepa_complaints.ui.ComplaintsScreen
 import com.example.uepa_complaints.ui.CreateComplaintScreen
 import com.example.uepa_complaints.ui.HomeScreen
@@ -13,6 +16,7 @@ import com.example.uepa_complaints.ui.LoginScreen
 import com.example.uepa_complaints.ui.components.AppScreen
 import com.example.uepa_complaints.ui.theme.UEPAComplaintsTheme
 import com.example.uepa_complaints.viewmodel.ComplaintViewModel
+import com.example.uepa_complaints.viewmodel.ComplaintViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -35,9 +39,34 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ReclamacoesUepaApp(
-    viewModel: ComplaintViewModel = viewModel()
-) {
+fun ReclamacoesUepaApp() {
+
+    val context = LocalContext.current
+
+    // Obtém o banco de dados Room da aplicação.
+    val database = remember {
+        DatabaseProvider.getDatabase(
+            context = context
+        )
+    }
+
+    // Cria o Repository utilizando o DAO do Room.
+    val repository = remember {
+        ComplaintRepository(
+            dao = database.complaintDao()
+        )
+    }
+
+    // Factory responsável por criar o ViewModel
+    // fornecendo o Repository necessário.
+    val factory = remember {
+        ComplaintViewModelFactory(repository)
+    }
+
+    // Agora o ViewModel pode ser criado corretamente.
+    val viewModel: ComplaintViewModel = viewModel(
+        factory = factory
+    )
 
     // ========================================================
     // ESTADO DA TELA
@@ -60,6 +89,7 @@ fun ReclamacoesUepaApp(
     // ========================================================
 
     val complaints by viewModel.complaints.collectAsState()
+
 
     // ========================================================
     // LOGIN
@@ -109,11 +139,17 @@ fun ReclamacoesUepaApp(
 
             CreateComplaintScreen(
 
+                viewModel = viewModel,
+
                 onBack = {
                     screen = AppScreen.HOME
                 },
 
-                onSubmit = { recipient, text ->
+                onComplaintCreated = {
+                    screen = AppScreen.COMPLAINTS
+                },
+
+                /*onSubmit = { recipient, text ->
 
                     viewModel.addComplaint(
                         recipient = recipient,
@@ -121,7 +157,7 @@ fun ReclamacoesUepaApp(
                     )
 
                     screen = AppScreen.COMPLAINTS
-                }
+                }*/
             )
         }
 
@@ -129,7 +165,13 @@ fun ReclamacoesUepaApp(
 
             ComplaintsScreen(
 
-                complaints = complaints,
+                /*complaints = complaints,*/
+
+                viewModel = viewModel,
+
+                onNavigate = {
+                    screen = it
+                },
 
                 onBack = {
                     screen = AppScreen.HOME

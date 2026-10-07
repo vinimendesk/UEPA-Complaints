@@ -61,8 +61,8 @@ fun HomeScreen(
     ) {
 
         AppHeader(
-            title = "Olá, Ana",
-            subtitle = "Campus V — CCNT",
+            title = "Olá, Samuel",
+            subtitle = "Campus Parauapebas",
             onLogout = onLogout
         )
 

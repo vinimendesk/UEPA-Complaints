@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uepa_complaints.data.model.Complaint
 import com.example.uepa_complaints.data.model.ComplaintStatus
 import com.example.uepa_complaints.data.model.Recipient
@@ -58,13 +61,24 @@ import com.example.uepa_complaints.ui.theme.UepaSlate500
 import com.example.uepa_complaints.ui.theme.UepaSlate600
 import com.example.uepa_complaints.ui.theme.UepaSlate900
 import com.example.uepa_complaints.ui.theme.UepaTeal700
+import com.example.uepa_complaints.viewmodel.ComplaintViewModel
 
 @Composable
 fun ComplaintsScreen(
-    complaints: List<Complaint>,
+    viewModel: ComplaintViewModel,
+    onNavigate: (AppScreen) -> Unit,
     onBack: () -> Unit,
     onNewComplaint: () -> Unit
 ) {
+
+
+    /**
+     * Coleta o Flow proveniente do Room.
+     *
+     * Sempre que uma reclamação for adicionada,
+     * removida ou alterada, a tela será recomposta.
+     */
+    val complaints by viewModel.complaints.collectAsStateWithLifecycle()
 
     var filter by remember {
         mutableStateOf<ComplaintStatus?>(null)
@@ -171,21 +185,26 @@ fun ComplaintsScreen(
             // =================================================
             // LISTA
             // =================================================
-
-            filteredComplaints.forEach { complaint ->
-
-                ComplaintCard(
-                    complaint = complaint
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-            }
-
             if (filteredComplaints.isEmpty()) {
 
                 EmptyComplaints()
+
+            } else {
+
+                /*
+                 * Percorre somente as reclamações que passaram
+                 * pelo filtro selecionado.
+                 */
+                filteredComplaints.forEach { complaint ->
+
+                    ComplaintCard(
+                        complaint = complaint
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+                }
             }
 
             Spacer(
@@ -216,7 +235,7 @@ fun ComplaintsScreen(
 
         BottomNavigationBar(
             currentScreen = AppScreen.COMPLAINTS,
-            onNavigate = {}
+            onNavigate = onNavigate
         )
     }
 }

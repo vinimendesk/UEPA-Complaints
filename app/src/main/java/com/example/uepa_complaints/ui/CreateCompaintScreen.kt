@@ -58,11 +58,15 @@ import com.example.uepa_complaints.ui.theme.UepaSlate500
 import com.example.uepa_complaints.ui.theme.UepaSlate900
 import com.example.uepa_complaints.ui.theme.UepaTeal50
 import com.example.uepa_complaints.ui.theme.UepaTeal700
+import com.example.uepa_complaints.viewmodel.ComplaintViewModel
 
 @Composable
 fun CreateComplaintScreen(
+    viewModel: ComplaintViewModel,
+    /*onNavigate: (AppScreen) -> Unit,*/
     onBack: () -> Unit,
-    onSubmit: (Recipient, String) -> Unit
+    onComplaintCreated: () -> Unit,
+   /* onSubmit: (Recipient, String) -> Unit*/
 ) {
 
     var recipient by remember {
@@ -312,12 +316,24 @@ fun CreateComplaintScreen(
             )
 
             Button(
-                enabled = canSubmit,
+                enabled = text.trim().length >= 10,
                 onClick = {
-                    onSubmit(
-                        recipient,
-                        text.trim()
+                    /*
+                     * Envia os dados para o ViewModel.
+                     *
+                     * O ViewModel será responsável por chamar
+                     * o Repository e, consequentemente, o Room.
+                     */
+                    viewModel.addComplaint(
+                        recipient = recipient,
+                        text = text.trim()
                     )
+
+                    /*
+                     * Depois de salvar, voltamos para a tela
+                     * de reclamações.
+                     */
+                    onComplaintCreated()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

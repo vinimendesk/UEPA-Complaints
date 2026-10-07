@@ -1,12 +1,17 @@
 package com.example.uepa_complaints.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.uepa_complaints.data.model.Complaint
+import com.example.uepa_complaints.data.model.ComplaintRepository
 import com.example.uepa_complaints.data.model.ComplaintStatus
 import com.example.uepa_complaints.data.model.Recipient
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 // ============================================================
 // VIEWMODEL PRINCIPAL
@@ -19,7 +24,23 @@ import kotlinx.coroutines.flow.asStateFlow
 // Firebase, Supabase, Room ou uma API REST.
 //
 
-class ComplaintViewModel : ViewModel() {
+class ComplaintViewModel(
+    private val repository: ComplaintRepository
+) : ViewModel() {
+
+    val complaints: StateFlow<List<Complaint>> =
+        repository
+            .observeComplaints()
+            .stateIn(
+                scope = viewModelScope,
+
+                // Começamos com uma lista vazia enquanto
+                // o Room carrega os dados.
+                started = SharingStarted.WhileSubscribed(5_000),
+
+                initialValue = emptyList()
+            )
+
 
     // --------------------------------------------------------
     // Reclamações iniciais
@@ -54,14 +75,44 @@ class ComplaintViewModel : ViewModel() {
         )
     )
 
-    val complaints: StateFlow<List<Complaint>> =
-        _complaints.asStateFlow()
+    /*val complaints: StateFlow<List<Complaint>> =
+        _complaints.asStateFlow()*/
 
     // --------------------------------------------------------
     // Adicionar reclamação
     // --------------------------------------------------------
 
+    /**
+     * Cria uma nova reclamação.
+     */
     fun addComplaint(
+        recipient: Recipient,
+        text: String
+    ) {
+
+        viewModelScope.launch {
+
+            repository.addComplaint(
+                recipient = recipient,
+                text = text
+            )
+        }
+    }
+
+    /**
+     * Remove uma reclamação.
+     */
+    fun deleteComplaint(
+        complaint: Complaint
+    ) {
+
+        viewModelScope.launch {
+
+            repository.deleteComplaint(complaint)
+        }
+    }
+
+    /*fun addComplaint(
         recipient: Recipient,
         text: String
     ) {
@@ -87,5 +138,5 @@ class ComplaintViewModel : ViewModel() {
         // A nova reclamação fica no início da lista.
         _complaints.value =
             listOf(newComplaint) + currentComplaints
-    }
+    }*/
 }

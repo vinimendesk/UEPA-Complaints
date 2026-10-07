@@ -7,6 +7,9 @@ plugins {
 
     // Plugin do compilador do Jetpack Compose.
     alias(libs.plugins.kotlin.compose)
+
+    // Plugin utilizado pelo Room para gerar o código das classes.
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -56,9 +59,15 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material:material-icons-extended")
         // ViewModel
-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
         // ViewModel utilities for Compose
-        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    // Room
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+
+    // Geração de código do Room utilizando KSP.
+    ksp("androidx.room:room-compiler:2.8.4")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
