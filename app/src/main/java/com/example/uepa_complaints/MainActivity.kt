@@ -4,7 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uepa_complaints.data.model.ComplaintRepository
@@ -14,6 +19,7 @@ import com.example.uepa_complaints.ui.CreateComplaintScreen
 import com.example.uepa_complaints.ui.HomeScreen
 import com.example.uepa_complaints.ui.LoginScreen
 import com.example.uepa_complaints.ui.components.AppScreen
+import com.example.uepa_complaints.ui.components.BottomNavigationBar
 import com.example.uepa_complaints.ui.theme.UEPAComplaintsTheme
 import com.example.uepa_complaints.viewmodel.ComplaintViewModel
 import com.example.uepa_complaints.viewmodel.ComplaintViewModelFactory
@@ -110,82 +116,113 @@ fun ReclamacoesUepaApp() {
     }
 
     // ========================================================
-    // TELAS PRINCIPAIS
-    // ========================================================
+// ÁREA PRINCIPAL DO APLICATIVO
+// ========================================================
 
-    when (screen) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-        AppScreen.HOME -> {
+        // ----------------------------------------------------
+        // CONTEÚDO DA TELA ATUAL
+        // ----------------------------------------------------
 
-            HomeScreen(
-                complaintCount = complaints.size,
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
 
-                onCreateComplaint = {
-                    screen = AppScreen.CREATE
-                },
+            when (screen) {
 
-                onComplaints = {
-                    screen = AppScreen.COMPLAINTS
-                },
+                // ====================================================
+                // HOME
+                // ====================================================
 
-                onLogout = {
-                    loggedIn = false
-                    screen = null
-                }
-            )
-        }
+                AppScreen.HOME -> {
 
-        AppScreen.CREATE -> {
+                    HomeScreen(
+                        complaintCount = complaints.size,
 
-            CreateComplaintScreen(
+                        onCreateComplaint = {
+                            screen = AppScreen.CREATE
+                        },
 
-                viewModel = viewModel,
+                        onComplaints = {
+                            screen = AppScreen.COMPLAINTS
+                        },
 
-                onBack = {
-                    screen = AppScreen.HOME
-                },
-
-                onComplaintCreated = {
-                    screen = AppScreen.COMPLAINTS
-                },
-
-                /*onSubmit = { recipient, text ->
-
-                    viewModel.addComplaint(
-                        recipient = recipient,
-                        text = text
+                        onLogout = {
+                            loggedIn = false
+                            screen = null
+                        }
                     )
-
-                    screen = AppScreen.COMPLAINTS
-                }*/
-            )
-        }
-
-        AppScreen.COMPLAINTS -> {
-
-            ComplaintsScreen(
-
-                /*complaints = complaints,*/
-
-                viewModel = viewModel,
-
-                onNavigate = {
-                    screen = it
-                },
-
-                onBack = {
-                    screen = AppScreen.HOME
-                },
-
-                onNewComplaint = {
-                    screen = AppScreen.CREATE
                 }
-            )
+
+                // ====================================================
+                // CRIAR RECLAMAÇÃO
+                // ====================================================
+
+                AppScreen.CREATE -> {
+
+                    CreateComplaintScreen(
+                        viewModel = viewModel,
+
+                        onBack = {
+                            screen = AppScreen.HOME
+                        },
+
+                        onComplaintCreated = {
+                            screen = AppScreen.COMPLAINTS
+                        }
+                    )
+                }
+
+                // ====================================================
+                // MINHAS RECLAMAÇÕES
+                // ====================================================
+
+                AppScreen.COMPLAINTS -> {
+
+                    ComplaintsScreen(
+                        viewModel = viewModel,
+
+                        onNavigate = {
+                            screen = it
+                        },
+
+                        onBack = {
+                            screen = AppScreen.HOME
+                        },
+
+                        onNewComplaint = {
+                            screen = AppScreen.CREATE
+                        }
+                    )
+                }
+
+                // ====================================================
+                // ESTADO INICIAL
+                // ====================================================
+
+                null -> {
+
+                    screen = AppScreen.HOME
+                }
+            }
         }
 
-        null -> {
+        // ========================================================
+        // BOTTOM NAVIGATION
+        // ========================================================
 
-            screen = AppScreen.HOME
-        }
+        BottomNavigationBar(
+            currentScreen = screen ?: AppScreen.HOME,
+
+            onNavigate = { destination ->
+
+                screen = destination
+            }
+        )
     }
 }

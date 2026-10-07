@@ -232,11 +232,6 @@ fun ComplaintsScreen(
                 )
             }
         }
-
-        BottomNavigationBar(
-            currentScreen = AppScreen.COMPLAINTS,
-            onNavigate = onNavigate
-        )
     }
 }
 

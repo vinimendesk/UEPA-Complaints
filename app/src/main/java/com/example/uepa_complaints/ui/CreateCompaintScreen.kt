@@ -356,11 +356,6 @@ fun CreateComplaintScreen(
                 )
             }
         }
-
-        BottomNavigationBar(
-            currentScreen = AppScreen.CREATE,
-            onNavigate = {}
-        )
     }
 }
 

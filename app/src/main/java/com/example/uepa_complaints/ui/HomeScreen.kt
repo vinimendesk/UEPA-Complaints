@@ -196,17 +196,6 @@ fun HomeScreen(
                 onClick = onComplaints
             )
         }
-
-        BottomNavigationBar(
-            currentScreen = AppScreen.HOME,
-            onNavigate = {
-                when (it) {
-                    AppScreen.CREATE -> onCreateComplaint()
-                    AppScreen.COMPLAINTS -> onComplaints()
-                    AppScreen.HOME -> Unit
-                }
-            }
-        )
     }
 }
 
